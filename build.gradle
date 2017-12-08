@@ -1,0 +1,28 @@
+ext.deps = [junit      : 'junit:junit:4.12',
+            mockitocore: 'org.mockito:mockito-core:2.8.47']
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.1'
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+apply plugin: "java-library"
+
+sourceCompatibility = JavaVersion.VERSION_1_5
+targetCompatibility = JavaVersion.VERSION_1_5
+
+dependencies {
+    testImplementation deps.junit
+    testImplementation deps.mockitocore
+}
