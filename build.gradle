@@ -18,6 +18,8 @@ allprojects {
 }
 
 apply plugin: "java-library"
+apply plugin: "jacoco"
+apply from: 'gradle-mvn-push.gradle'
 
 sourceCompatibility = JavaVersion.VERSION_1_5
 targetCompatibility = JavaVersion.VERSION_1_5
@@ -25,4 +27,12 @@ targetCompatibility = JavaVersion.VERSION_1_5
 dependencies {
     testImplementation deps.junit
     testImplementation deps.mockitocore
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.enabled true
+    }
 }

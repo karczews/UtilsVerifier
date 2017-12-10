@@ -1,10 +1,16 @@
 language: java
 jdk: oraclejdk8
 sudo: false
-
+install: true
 script:
-    - ./gradlew clean build test check
-
+- "./gradlew clean build test check jacocoTestReport"
+after_success:
+- bash <(curl -s https://codecov.io/bash)
+- ".utility/initiate-publish.sh"
 cache:
   directories:
-    - $HOME/.gradle
+  - "$HOME/.gradle"
+env:
+  global:
+  - secure: fMNepzdo/3x6Hf3H5KzxTJ4zzsJ8aIoseZLAOgpp/BuCexp7Pq6urbycmZ3VRd3yeYou/SBesockVjyVw4CULhx7dr9Q28+YUvlS/k5n0dcVqeICeS43A0YafdrsUFKPJrvs+Jl3e67y99uLVGHPXe1ntkYzjnF7g3rDpmxwmkE5kchV3cUZeSAJZIarU287fo5JuhtOXwnICYR6/oSJmok4xJcBbKQeGvqYmhkHm/7gHuYyhVwDvM3UTUodzrOP3PM0B4e4kvYG6olqdlFPiuj6LbKrvWU2Z6WVAyNw7zbe9F5cYqXZOs1VBgG381hWb6+JtZ8t6dKl+Z5/HnOiUhm2Xlj6oGA7EVXknWWtZLiiF5GjmkNWk/b2ERZGwA/KN102xnXhCdg9Cs14xqpYGh++f7QMTBW2JWRooMshisy30I/3jxz1lF6Gq8TZi7QtV5VMS0jnrY60A18N3HM4UrR8XYd5xMa4PlllGLkqlkTUlOUSYU4eCV8W+ElYeitMCKFcb/HfhiLFc/3TCyMddlfA7BQVTfkGEmUe9hpufL/098axUBQ8hop7Bpd2OFTcZ5f+KfHqQEn4mswEKkkcw7hcTl+RVeHQcZOwdAh7h1bpfR4R2YxuDBv4Yw6cqtCwz/IF7GugdFJq5Yi58eqNhV7D35ArNH2xUX5t1qal7E4=
+  - secure: HaHgFdwu1Pb7GlXM/hvnPMMPHwPBvUshZS4w2VKYKAxHZAvbsvzNJ/PX45MX9J47ecP8876zX7yXF3O/bNzuUEXFs17jPpqECpIQKTX1GYumVHr/bqbs4sHyGxRnjFYtoYmQ8AqvXTheyUNUu5ktqeRTp/O9KU6DrOnbgdnptkbuVuM/PrGh0+Dvi1s8WTWE+A4RQintTHM9eGJXOD2ztAne1XBL0Sjy6TSkeLDiP5yEd1k0rdEietVrDmAqqW/BEap/90Ypas8EH0Xb8LJ7y6f9TnZUwzu6HyAB8gsWyZXCrQDzCVpS7eQj60df3BSuPPfRzn2kSDh+Qs/V2zzrwoNNxP2fksYNzNudNW/O7AZ9/+sZaC+iSSm99NQqif7IKi7MWMNlmcQ9l25Oocup+PJfhvuq1pBeMlfYetNPZHKG8j34TXXAhn0CSkuIjqqpyrDpQyJpDKNSlWSLtrijYaRu0C9iPqx40SE9+hU30Ay0noyfx1t3SeG7OTCUyVt4ZyRNnfbuwgKnv/tY1yayE7YXEzj1gNuuaaCdYbh8dOKtoX8UbwvaGdu2jvu1MOlr43wlq/csnh/6TK9KrYpCCFEOxWePPeMiDx7pQgMZ1P4zC8+B8Z11ucUp6Jhqh8pIS5UBE2LyrJa/wA1Wt5iZxSHprs1YF+KrciyF8HYxKyI=

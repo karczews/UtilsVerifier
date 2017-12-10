@@ -12,9 +12,8 @@
  */
 package com.github.karczews.utilsverifier.subjects;
 
-public final class InstanceFields {
-    private int instanceInt;
-
-    private InstanceFields() {
+public final class ThrowingConstructor {
+    private ThrowingConstructor() {
+        throw new IllegalStateException();
     }
 }

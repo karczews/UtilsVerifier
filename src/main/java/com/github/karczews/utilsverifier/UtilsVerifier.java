@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2017-present, UtilsVerifier Contributors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See
+ * the License for the specific language governing permissions and limitations under the License.
+ */
 package com.github.karczews.utilsverifier;
 
 import java.lang.reflect.Constructor;
@@ -5,6 +17,19 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 
+/**
+ * {@code EqualsVerifier} tool can be used in unit tests to verify if certain util class is
+ * well formed.
+ * <p>
+ * By default verifier performs following checks that class:
+ * <ul>
+ * <li> is final
+ * <li> has only one private constructor
+ * <li> has no instance fields
+ * </ul>
+ *
+ * @param <T> class under test
+ */
 public class UtilsVerifier<T> {
 
     private final Class<T> classUnderTest;
@@ -20,35 +45,12 @@ public class UtilsVerifier<T> {
     }
 
     /**
-     * Creates UtilsVerifier for provided type.
+     * Creates UtilsVerifier instance for provided type.
+     *
+     * @param type class type for which verifier will be created
      */
     public static <T> UtilsVerifier<T> forClass(final Class<T> type) {
         return new UtilsVerifier<T>(type);
-    }
-
-    public UtilsVerifier<T> withConstructorThrowing(final Class<? extends Throwable> type) {
-        expectedConstructorException = type;
-        return this;
-    }
-
-    public UtilsVerifier<T> suppressFinalClassCheck(final boolean suppressCheck) {
-        suppressFinalClassCheck = suppressCheck;
-        return this;
-    }
-
-    public UtilsVerifier<T> suppressOnlyOneConstructorCheck(final boolean suppressCheck) {
-        suppressOnlyOneConstructorCheck = suppressCheck;
-        return this;
-    }
-
-    public UtilsVerifier<T> suppressPrivateConstructorCheck(final boolean suppressCheck) {
-        suppressPrivateConstructorCheck = suppressCheck;
-        return this;
-    }
-
-    public UtilsVerifier<T> suppressInstanceFieldCheck(final boolean suppressCheck) {
-        suppressInstanceFieldCheck = suppressCheck;
-        return this;
     }
 
     /**
@@ -60,6 +62,59 @@ public class UtilsVerifier<T> {
         hasOnlyOneConstructor();
         verifyPrivateConstructor();
         hasNoInstanceFields();
+    }
+
+    /**
+     * Sets exception type that will be expected during construction attempt.
+     *
+     * @param type expected exception type
+     */
+    public UtilsVerifier<T> withConstructorThrowing(final Class<? extends Throwable> type) {
+        expectedConstructorException = type;
+        return this;
+    }
+
+    /**
+     * Suppress final class verification. Use if non-final util class is allowed.
+     *
+     * @param suppressCheck true if check should be suppressed, false otherwise
+     */
+    public UtilsVerifier<T> suppressFinalClassCheck(final boolean suppressCheck) {
+        suppressFinalClassCheck = suppressCheck;
+        return this;
+    }
+
+    /**
+     * Suppress single constructor verification.
+     * Use if util class is allowed to have more than one constructor.
+     *
+     * @param suppressCheck true if check should be suppressed, false otherwise
+     */
+    public UtilsVerifier<T> suppressOnlyOneConstructorCheck(final boolean suppressCheck) {
+        suppressOnlyOneConstructorCheck = suppressCheck;
+        return this;
+    }
+
+    /**
+     * Suppress private constructor verification.
+     * Use if util class is allowed to have non private constructor.
+     *
+     * @param suppressCheck true if check should be suppressed, false otherwise
+     */
+    public UtilsVerifier<T> suppressPrivateConstructorCheck(final boolean suppressCheck) {
+        suppressPrivateConstructorCheck = suppressCheck;
+        return this;
+    }
+
+    /**
+     * Suppress instance field verification.
+     * Use if util class is allowed to have instance fields.
+     *
+     * @param suppressCheck true if check should be suppressed, false otherwise
+     */
+    public UtilsVerifier<T> suppressInstanceFieldCheck(final boolean suppressCheck) {
+        suppressInstanceFieldCheck = suppressCheck;
+        return this;
     }
 
     private void checkIfClassIsFinal() {
@@ -93,15 +148,13 @@ public class UtilsVerifier<T> {
             if (expectedConstructorException != null) {
                 throw new AssertionError("should not be able to instantiate " + classUnderTest.getSimpleName());
             }
-        } catch (final IllegalAccessException e) {
-            throw new IllegalStateException(e);
-        } catch (final InstantiationException e) {
-            throw new IllegalStateException(e);
         } catch (final InvocationTargetException e) {
             if (!expectedConstructorException.isInstance(e.getTargetException())) {
                 throw new AssertionError("expected exception: " + expectedConstructorException.getName() +
                         " got: " + e.getTargetException().getClass().getName());
             }
+        } catch (final ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -115,5 +168,6 @@ public class UtilsVerifier<T> {
             }
         }
     }
+    //TODO: add check for non-static methods
     //TODO: add check for mutable static fields
 }
