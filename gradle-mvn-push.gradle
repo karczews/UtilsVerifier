@@ -92,29 +92,28 @@ afterEvaluate { project ->
         sign configurations.archives
     }
 
-    task androidJavadocs(type: Javadoc) {
-        source = android.sourceSets.main.java.srcDirs
-        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-        classpath += configurations.compile
+    javadoc {
+        source = sourceSets.main.allJava
+        classpath = configurations.compileClasspath
+
         options {
-            options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PUBLIC
-            linksOffline "http://d.android.com/reference", "${android.sdkDirectory}/docs/reference"
-            links "http://reactivex.io/RxJava/javadoc"
+            setMemberLevel JavadocMemberLevel.PUBLIC
+            links "https://docs.oracle.com/javase/8/docs/api/"
         }
     }
 
-    task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+    task javadocsJar(type: Jar, dependsOn: javadoc) {
         classifier = 'javadoc'
-        from androidJavadocs.destinationDir
+        from javadoc.destinationDir
     }
 
-    task androidSourcesJar(type: Jar) {
+    task sourcesJar(type: Jar) {
         classifier = 'sources'
-        from android.sourceSets.main.java.sourceFiles
+        from sourceSets.main.allJava
     }
 
     artifacts {
-        archives androidSourcesJar
-        archives androidJavadocsJar
+        archives javadocsJar
+        archives sourcesJar
     }
 }
