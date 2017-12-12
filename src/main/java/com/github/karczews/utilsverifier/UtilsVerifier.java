@@ -15,6 +15,7 @@ package com.github.karczews.utilsverifier;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
@@ -39,6 +40,7 @@ public class UtilsVerifier<T> {
     private boolean suppressOnlyOneConstructorCheck = false;
     private boolean suppressPrivateConstructorCheck = false;
     private boolean suppressInstanceFieldCheck = false;
+    private boolean suppressInstanceMethodCheck = false;
 
     private UtilsVerifier(final Class<T> type) {
         classUnderTest = type;
@@ -62,6 +64,7 @@ public class UtilsVerifier<T> {
         hasOnlyOneConstructor();
         verifyPrivateConstructor();
         hasNoInstanceFields();
+        hasNoInstanceMethods();
     }
 
     /**
@@ -117,6 +120,17 @@ public class UtilsVerifier<T> {
         return this;
     }
 
+    /**
+     * Suppress instance method verification.
+     * Use if util class is allowed to have instance methods.
+     *
+     * @param suppressCheck true if check should be suppressed, false otherwise
+     */
+    public UtilsVerifier<T> suppressInstanceMethodCheck(final boolean suppressCheck) {
+        suppressInstanceMethodCheck = suppressCheck;
+        return this;
+    }
+
     private void checkIfClassIsFinal() {
         if (suppressFinalClassCheck) return;
         if (!Modifier.isFinal(classUnderTest.getModifiers())) {
@@ -164,10 +178,22 @@ public class UtilsVerifier<T> {
         for (int index = 0; index < fields.length; index++) {
             final Field field = fields[index];
             if (!Modifier.isStatic(field.getModifiers())) {
-                throw new AssertionError(classUnderTest.getName() + " contains instance field " + field.getName());
+                throw new AssertionError(classUnderTest.getName()
+                        + " contains instance field " + field.getName());
             }
         }
     }
-    //TODO: add check for non-static methods
+
+    private void hasNoInstanceMethods() {
+        if (suppressInstanceMethodCheck) return;
+        final Method[] methods = classUnderTest.getDeclaredMethods();
+        for (int index = 0; index < methods.length; index++) {
+            final Method method = methods[index];
+            if (!Modifier.isStatic(method.getModifiers())) {
+                throw new AssertionError(classUnderTest.getName()
+                        + " contains instance method " + method.getName());
+            }
+        }
+    }
     //TODO: add check for mutable static fields
 }

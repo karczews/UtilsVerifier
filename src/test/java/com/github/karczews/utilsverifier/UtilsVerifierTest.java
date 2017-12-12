@@ -13,18 +13,25 @@
 package com.github.karczews.utilsverifier;
 
 
+import com.github.karczews.utilsverifier.subjects.AbstractClass;
+import com.github.karczews.utilsverifier.subjects.DefaultConstructor;
 import com.github.karczews.utilsverifier.subjects.InstanceFields;
+import com.github.karczews.utilsverifier.subjects.InstanceMethods;
 import com.github.karczews.utilsverifier.subjects.MultipleConstructors;
 import com.github.karczews.utilsverifier.subjects.NonFinalClass;
+import com.github.karczews.utilsverifier.subjects.NonPrivateConstructor;
 import com.github.karczews.utilsverifier.subjects.ThrowingConstructor;
 import com.github.karczews.utilsverifier.subjects.WellFormed;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 public class UtilsVerifierTest {
 
@@ -48,6 +55,35 @@ public class UtilsVerifierTest {
 
         suppressedVerifier(InstanceFields.class)
                 .suppressInstanceFieldCheck(false)
+                .verify();
+    }
+
+    @Test
+    public void shouldFailOnInstanceMethod() {
+        expectedException.expect(AssertionError.class);
+        expectedException.expectMessage(containsString("instanceMethod"));
+
+        suppressedVerifier(InstanceMethods.class)
+                .suppressInstanceMethodCheck(false)
+                .verify();
+    }
+
+    @Test
+    public void shouldFailWhenNoConstructor() {
+        expectedException.expect(AssertionError.class);
+
+        suppressedVerifier(DefaultConstructor.class)
+                .suppressPrivateConstructorCheck(false)
+                .verify();
+    }
+
+    @Test
+    public void shouldFailWhenNoPrivateConstructor() {
+        expectedException.expect(AssertionError.class);
+        expectedException.expectMessage(containsString("should be private"));
+
+        suppressedVerifier(NonPrivateConstructor.class)
+                .suppressPrivateConstructorCheck(false)
                 .verify();
     }
 
@@ -95,11 +131,27 @@ public class UtilsVerifierTest {
         UtilsVerifier.forClass(WellFormed.class).verify();
     }
 
+    @Test
+    public void shouldThrowIllegalStateExceptionOnInstantiationReflectionProblems() {
+        expectedException.expect(IllegalStateException.class);
+
+        suppressedVerifier(AbstractClass.class).verify();
+    }
+
+    @Test
+    public void shouldFailOnClassWithNoConstructor() {
+        expectedException.expect(AssertionError.class);
+        expectedException.expectMessage(containsString("has no constructor"));
+
+        suppressedVerifier(Runnable.class).verify();
+    }
+
     private static <T> UtilsVerifier<T> suppressedVerifier(final Class<T> type) {
         return UtilsVerifier.forClass(type)
                 .suppressFinalClassCheck(true)
                 .suppressOnlyOneConstructorCheck(true)
                 .suppressPrivateConstructorCheck(true)
-                .suppressInstanceFieldCheck(true);
+                .suppressInstanceFieldCheck(true)
+                .suppressInstanceMethodCheck(true);
     }
 }
