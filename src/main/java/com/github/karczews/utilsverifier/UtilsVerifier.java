@@ -27,20 +27,26 @@ import java.lang.reflect.Modifier;
  * <li> is final
  * <li> has only one private constructor
  * <li> has no instance fields
+ * <li> has no mutable static fields
  * </ul>
  *
  * @param <T> class under test
  */
-public class UtilsVerifier<T> {
+public final class UtilsVerifier<T> {
 
     private final Class<T> classUnderTest;
 
     private Class<? extends Throwable> expectedConstructorException;
+
     private boolean suppressFinalClassCheck = false;
     private boolean suppressOnlyOneConstructorCheck = false;
     private boolean suppressPrivateConstructorCheck = false;
     private boolean suppressInstanceFieldCheck = false;
     private boolean suppressInstanceMethodCheck = false;
+    private boolean suppressMutableStaticFieldsCheck = false;
+
+    // list of mutable static fields often added by outside tools like JaCoCo
+    private final String[] allowedMutableStaticFields = {"$jacocoData"};
 
     private UtilsVerifier(final Class<T> type) {
         classUnderTest = type;
@@ -65,6 +71,7 @@ public class UtilsVerifier<T> {
         verifyPrivateConstructor();
         hasNoInstanceFields();
         hasNoInstanceMethods();
+        hasNoMutableStaticFields();
     }
 
     /**
@@ -128,6 +135,17 @@ public class UtilsVerifier<T> {
      */
     public UtilsVerifier<T> suppressInstanceMethodCheck(final boolean suppressCheck) {
         suppressInstanceMethodCheck = suppressCheck;
+        return this;
+    }
+
+    /**
+     * Suppress static mutable fields verification.
+     * Use if util class is allowed to have mutable static fields.
+     *
+     * @param suppressCheck true if check should be suppressed, false otherwise
+     */
+    public UtilsVerifier<T> suppressMutableStaticFieldsCheck(final boolean suppressCheck) {
+        suppressMutableStaticFieldsCheck = suppressCheck;
         return this;
     }
 
@@ -195,5 +213,22 @@ public class UtilsVerifier<T> {
             }
         }
     }
-    //TODO: add check for mutable static fields
+
+    private void hasNoMutableStaticFields() {
+        if (suppressMutableStaticFieldsCheck) return;
+        final Field[] fields = classUnderTest.getDeclaredFields();
+
+        fields:
+        for (int index = 0; index < fields.length; index++) {
+            final Field field = fields[index];
+            final int modifiers = field.getModifiers();
+            if (Arrays2.contains(field.getName(), allowedMutableStaticFields)) {
+                continue fields;
+            }
+            if (Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers)) {
+                throw new AssertionError(classUnderTest.getName()
+                        + " contains static mutable field " + field.getName());
+            }
+        }
+    }
 }
