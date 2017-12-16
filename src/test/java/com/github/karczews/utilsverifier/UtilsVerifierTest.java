@@ -15,28 +15,48 @@ package com.github.karczews.utilsverifier;
 
 import com.github.karczews.utilsverifier.subjects.AbstractClass;
 import com.github.karczews.utilsverifier.subjects.DefaultConstructor;
+import com.github.karczews.utilsverifier.subjects.ImmutableStaticFields;
 import com.github.karczews.utilsverifier.subjects.InstanceFields;
 import com.github.karczews.utilsverifier.subjects.InstanceMethods;
 import com.github.karczews.utilsverifier.subjects.MultipleConstructors;
+import com.github.karczews.utilsverifier.subjects.MutableStaticFields;
 import com.github.karczews.utilsverifier.subjects.NonFinalClass;
 import com.github.karczews.utilsverifier.subjects.NonPrivateConstructor;
 import com.github.karczews.utilsverifier.subjects.ThrowingConstructor;
 import com.github.karczews.utilsverifier.subjects.WellFormed;
-
+import static org.hamcrest.core.AllOf.allOf;
+import static org.hamcrest.core.StringContains.containsString;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
-
-import static org.hamcrest.core.AllOf.allOf;
-import static org.hamcrest.core.StringContains.containsString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 
 public class UtilsVerifierTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+
+    @Test
+    public void shouldFailOnMutableStaticFields() {
+        expectedException.expect(AssertionError.class);
+        expectedException.expectMessage(containsString("staticInt"));
+
+        suppressedVerifier(MutableStaticFields.class)
+                .suppressMutableStaticFieldsCheck(false)
+                .verify();
+    }
+
+    @Test
+    public void shouldPassOnMutableStaticFields() {
+        suppressedVerifier(ImmutableStaticFields.class)
+                .suppressMutableStaticFieldsCheck(false)
+                .verify();
+
+        // due to complex condition two asserts in one test
+        // to not create confusion with strange test name
+        suppressedVerifier(InstanceFields.class)
+                .suppressMutableStaticFieldsCheck(false)
+                .verify();
+    }
 
     @Test
     public void shouldFailOnNonFinalClassVerification() {
@@ -152,6 +172,7 @@ public class UtilsVerifierTest {
                 .suppressOnlyOneConstructorCheck(true)
                 .suppressPrivateConstructorCheck(true)
                 .suppressInstanceFieldCheck(true)
-                .suppressInstanceMethodCheck(true);
+                .suppressInstanceMethodCheck(true)
+                .suppressMutableStaticFieldsCheck(true);
     }
 }
