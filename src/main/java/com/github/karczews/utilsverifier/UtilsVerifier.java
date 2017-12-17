@@ -198,8 +198,8 @@ public final class UtilsVerifier<T> {
             if (!suppressPrivateConstructorCheck && !Modifier.isPrivate(constructor.getModifiers())) {
                 throw new AssertionError("Constructor should be private");
             }
-        } catch (final NoSuchMethodException noSuchMethod) {
-            throw new AssertionError(classUnderTest.getSimpleName() + " has no constructor", noSuchMethod);
+        } catch (final NoSuchMethodException ignore) {
+            throw new AssertionError(classUnderTest.getSimpleName() + " has no constructor");
         }
 
         try {
@@ -213,7 +213,7 @@ public final class UtilsVerifier<T> {
                 throw new AssertionError("expected exception: " + expectedConstructorException.getName() +
                         " got: " + e.getTargetException().getClass().getName());
             }
-        } catch (final ReflectiveOperationException e) {
+        } catch (final Exception e) {
             throw new IllegalStateException(e);
         }
     }
