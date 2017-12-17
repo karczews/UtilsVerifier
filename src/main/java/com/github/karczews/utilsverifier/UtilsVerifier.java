@@ -19,8 +19,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
- * {@code EqualsVerifier} tool can be used in unit tests to verify if certain util class is
- * well formed.
+ * {@code UtilsVerifier} tool can be used in unit tests to verify if certain
+ * util class is well formed.
  * <p>
  * By default verifier performs following checks that class:
  * <ul>
@@ -29,8 +29,24 @@ import java.lang.reflect.Modifier;
  * <li> has no instance fields
  * <li> has no mutable static fields
  * </ul>
+ * <p>
+ * If any of the following checks fails then an {@link AssertionError} will be
+ * thrown with an appropriate information about the cause.
+ * <p>
+ * Basic usage:
+ * <pre>
+ * {@code UtilsVerifier.forClass(TestedClass.class).verify();}
+ * </pre>
+ * It's not advised, but possible to suppress one or more of the checks with
+ * builder methods.
+ * <p>
+ * Example suppress:
+ * <pre>
+ * {@code UtilsVerifier.forClass(TestClass.class).suppressFinalClassCheck(true).verify();}
+ * </pre>
  *
  * @param <T> class under test
+ * @see AssertionError
  */
 public final class UtilsVerifier<T> {
 
@@ -53,17 +69,22 @@ public final class UtilsVerifier<T> {
     }
 
     /**
-     * Creates UtilsVerifier instance for provided type.
+     * Creates UtilsVerifier instance for the provided type.
      *
-     * @param type class type for which verifier will be created
+     * @param type class type for a which verifier will be created
+     * @param <T>  type of the class to verify
+     * @return UtilsVerifier instance
      */
     public static <T> UtilsVerifier<T> forClass(final Class<T> type) {
         return new UtilsVerifier<T>(type);
     }
 
     /**
-     * Performs verification for provided type.
-     * {@link AssertionError} will be thrown if provided type is not well formed util class.
+     * Performs verification for the type that the {@link UtilsVerifier} was
+     * created with.
+     * <p>
+     * {@link AssertionError} will be thrown if provided type is not a well
+     * formed util class.
      */
     public void verify() {
         checkIfClassIsFinal();
@@ -78,6 +99,7 @@ public final class UtilsVerifier<T> {
      * Sets exception type that will be expected during construction attempt.
      *
      * @param type expected exception type
+     * @return UtilsVerifier instance
      */
     public UtilsVerifier<T> withConstructorThrowing(final Class<? extends Throwable> type) {
         expectedConstructorException = type;
@@ -88,6 +110,7 @@ public final class UtilsVerifier<T> {
      * Suppress final class verification. Use if non-final util class is allowed.
      *
      * @param suppressCheck true if check should be suppressed, false otherwise
+     * @return UtilsVerifier instance
      */
     public UtilsVerifier<T> suppressFinalClassCheck(final boolean suppressCheck) {
         suppressFinalClassCheck = suppressCheck;
@@ -95,10 +118,11 @@ public final class UtilsVerifier<T> {
     }
 
     /**
-     * Suppress single constructor verification.
-     * Use if util class is allowed to have more than one constructor.
+     * Suppress single constructor verification. Use if util class is allowed to
+     * have more than one constructor.
      *
      * @param suppressCheck true if check should be suppressed, false otherwise
+     * @return UtilsVerifier instance
      */
     public UtilsVerifier<T> suppressOnlyOneConstructorCheck(final boolean suppressCheck) {
         suppressOnlyOneConstructorCheck = suppressCheck;
@@ -106,10 +130,11 @@ public final class UtilsVerifier<T> {
     }
 
     /**
-     * Suppress private constructor verification.
-     * Use if util class is allowed to have non private constructor.
+     * Suppress private constructor verification. Use if util class is allowed
+     * to have non private constructor.
      *
      * @param suppressCheck true if check should be suppressed, false otherwise
+     * @return UtilsVerifier instance
      */
     public UtilsVerifier<T> suppressPrivateConstructorCheck(final boolean suppressCheck) {
         suppressPrivateConstructorCheck = suppressCheck;
@@ -117,10 +142,11 @@ public final class UtilsVerifier<T> {
     }
 
     /**
-     * Suppress instance field verification.
-     * Use if util class is allowed to have instance fields.
+     * Suppress instance field verification. Use if util class is allowed to
+     * have instance fields.
      *
      * @param suppressCheck true if check should be suppressed, false otherwise
+     * @return UtilsVerifier instance
      */
     public UtilsVerifier<T> suppressInstanceFieldCheck(final boolean suppressCheck) {
         suppressInstanceFieldCheck = suppressCheck;
@@ -128,10 +154,11 @@ public final class UtilsVerifier<T> {
     }
 
     /**
-     * Suppress instance method verification.
-     * Use if util class is allowed to have instance methods.
+     * Suppress instance method verification. Use if util class is allowed to
+     * have instance methods.
      *
      * @param suppressCheck true if check should be suppressed, false otherwise
+     * @return UtilsVerifier instance
      */
     public UtilsVerifier<T> suppressInstanceMethodCheck(final boolean suppressCheck) {
         suppressInstanceMethodCheck = suppressCheck;
@@ -139,10 +166,11 @@ public final class UtilsVerifier<T> {
     }
 
     /**
-     * Suppress static mutable fields verification.
-     * Use if util class is allowed to have mutable static fields.
+     * Suppress static mutable fields verification. Use if util class is allowed
+     * to have mutable static fields.
      *
      * @param suppressCheck true if check should be suppressed, false otherwise
+     * @return UtilsVerifier instance
      */
     public UtilsVerifier<T> suppressMutableStaticFieldsCheck(final boolean suppressCheck) {
         suppressMutableStaticFieldsCheck = suppressCheck;
@@ -218,12 +246,11 @@ public final class UtilsVerifier<T> {
         if (suppressMutableStaticFieldsCheck) return;
         final Field[] fields = classUnderTest.getDeclaredFields();
 
-        fields:
         for (int index = 0; index < fields.length; index++) {
             final Field field = fields[index];
             final int modifiers = field.getModifiers();
             if (Arrays2.contains(field.getName(), allowedMutableStaticFields)) {
-                continue fields;
+                continue;
             }
             if (Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers)) {
                 throw new AssertionError(classUnderTest.getName()
