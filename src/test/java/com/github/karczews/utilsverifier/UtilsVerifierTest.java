@@ -20,6 +20,7 @@ import com.github.karczews.utilsverifier.subjects.InstanceFields;
 import com.github.karczews.utilsverifier.subjects.InstanceMethods;
 import com.github.karczews.utilsverifier.subjects.MultipleConstructors;
 import com.github.karczews.utilsverifier.subjects.MutableStaticFields;
+import com.github.karczews.utilsverifier.subjects.NoConstructor;
 import com.github.karczews.utilsverifier.subjects.NonFinalClass;
 import com.github.karczews.utilsverifier.subjects.NonPrivateConstructor;
 import com.github.karczews.utilsverifier.subjects.ThrowingConstructor;
@@ -89,8 +90,9 @@ public class UtilsVerifierTest {
     }
 
     @Test
-    public void shouldFailWhenNoConstructor() {
+    public void shouldFailWhenOnlyADefaultPublicConstructor() {
         expectedException.expect(AssertionError.class);
+        expectedException.expectMessage(containsString("should be private"));
 
         suppressedVerifier(DefaultConstructor.class)
                 .suppressPrivateConstructorCheck(false)
@@ -103,6 +105,16 @@ public class UtilsVerifierTest {
         expectedException.expectMessage(containsString("should be private"));
 
         suppressedVerifier(NonPrivateConstructor.class)
+                .suppressPrivateConstructorCheck(false)
+                .verify();
+    }
+
+    @Test
+    public void shouldFailWhenNoConstructor() {
+        expectedException.expect(AssertionError.class);
+        expectedException.expectMessage(containsString("has no constructor"));
+
+        suppressedVerifier(NoConstructor.class)
                 .suppressPrivateConstructorCheck(false)
                 .verify();
     }
