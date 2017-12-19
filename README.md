@@ -1,5 +1,5 @@
 # UtilsVerifier
-UtilsVerifier is a pure java library that can be used in junit tests to verify that Utility method is properly defined.
+UtilsVerifier is a pure Java library that can be used in Junit tests to verify that Utility class is properly defined.
 
 [![Build Status](https://travis-ci.org/karczews/UtilsVerifier.svg?branch=master)](https://travis-ci.org/karczews/UtilsVerifier)
 [![Sonatype Nexus (Releases)](https://img.shields.io/nexus/r/https/oss.sonatype.org/com.github.karczews/utilsverifier.svg?style=flat)](https://oss.sonatype.org/content/repositories/releases/com/github/karczews/utilsverifier/)
@@ -8,10 +8,11 @@ UtilsVerifier is a pure java library that can be used in junit tests to verify t
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/karczews/UtilsVerifier/blob/master/LICENSE)
 
 By default verification includes:
- * class has only one private constructor
- * class is final
- * class has no instance fields
- * class has no instance methods
+ * class having only one private constructor
+ * class being final
+ * class having no instance fields
+ * class having no instance methods
+ * class having no static mutable fields
  
 Usage
 --------
@@ -19,6 +20,22 @@ Usage
     UtilsVerifier.forClass(ClassToTest.class).verify();
 ```
 
+It's possible to disable one or more of the default verification checks by using set of "suppress" methods.
+
+```java
+    UtilsVerifier.forClass(ClassToTest.class)
+                 .suppressFinalClassCheck(true)
+                 .suppressOnlyOneConstructorCheck(true)
+                 .verify();
+```
+
+If the tested class constructor should throw an exception when used it's possible to specify the type of the exception.
+
+```java
+    UtilsVerifier.forClass(ClassToTest.class)
+                 .withConstructorThrowing(DesiredException.class)
+                 .verify();
+```
 
 Download
 --------
