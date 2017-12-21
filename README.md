@@ -44,7 +44,7 @@ To use library with Gradle
 
 ```groovy
 dependencies {
-  compile 'com.github.karczews:utilsverifier:0.0.2'
+  compile 'com.github.karczews:utilsverifier:1.0.0'
 }
 ```
 
@@ -54,6 +54,6 @@ or using Maven:
 <dependency>
     <groupId>com.github.karczews</groupId>
     <artifactId>utilsverifier</artifactId>
-    <version>0.0.2</version>
+    <version>1.0.0</version>
 </dependency>
 ```
