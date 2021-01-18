@@ -1,5 +1,5 @@
 ext.deps = [junit      : 'junit:junit:4.13.1',
-            mockitocore: 'org.mockito:mockito-core:3.6.28']
+            mockitocore: 'org.mockito:mockito-core:3.7.7']
 
 buildscript {
     repositories {
