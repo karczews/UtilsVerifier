@@ -1,4 +1,4 @@
-ext.deps = [junit      : 'junit:junit:4.13.1',
+ext.deps = [junit      : 'junit:junit:4.13.2',
             mockitocore: 'org.mockito:mockito-core:3.7.7']
 
 buildscript {
